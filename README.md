@@ -40,7 +40,3 @@
 | [🤖 rag_databricks_migration_tool](https://github.com/CateHey/rag_databricks_migration_tool) | AI RAG tool to migrate DB objects to Databricks | Python, RAG |
 
 ---
-
-<p align="center">
-  <img src="https://komarev.com/ghpvc/?username=CateHey&color=36BCF7&style=flat-square&label=Profile+Views" />
-</p>
