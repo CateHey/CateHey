@@ -1,135 +1,34 @@
-# MineOps Dispatch
-
-> WhatsApp-to-control-room automation for mining operations — real-time field reporting without forms or radio calls.
-
-A production-grade system that lets mining operators (drillers, blasters, transport drivers) report operation status by sending a single WhatsApp message. An AI agent classifies the report, updates the operations database, and confirms back to the operator — end to end in under 3 seconds.
-
-**Built as a consulting deliverable for a mining operations company in Chile.**
-
-https://mining-operations-n8n-automation-2d.vercel.app/
-
+![Typing SVG](https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&pause=1000&color=36BCF7&width=500&lines=Hi+there%2C+I'm+Catherine+%F0%9F%91%8B;Data+%26+AI+Engineer;Computer+Vision+%7C+MLOps+%7C+IoT;AWS+%7C+Spark+%7C+Databricks)
 ---
-
-## The problem
-
-Mining operations lose critical time to reporting friction. Operators finish a drilling run, a blast, or a transport haul, then need to radio the control room, wait for the dispatcher, and relay details that get manually entered into the system. Status updates are delayed, shift handoffs lose context, and suspended operations sit unreported until someone asks. In remote mine sites with limited connectivity, this lag affects safety decisions and production targets.
-
-## The solution
-
-A single-channel reporting handler. Operators send one WhatsApp message in plain language — *"Voladura completada zona norte, 3 detonaciones sin incidente"* — and the system handles the rest:
-
-1. Identifies the operator by phone number
-2. Looks up their active operation for the current shift
-3. Classifies the message into one of three outcomes using Claude
-4. Updates the operations database, logs variations, or finds the next available shift slot
-5. Sends a structured confirmation back via WhatsApp
-6. Surfaces every event on a real-time control room dashboard
-
+🧠 About Me
+🎓 University of Queensland
+🌏 Based in Australia
+💼 Data & AI Engineer with a background in software engineering
+🔭 Currently building data pipelines, ML systems & mining automation tools
+🌐 Portfolio: catherinevaras.com
+💬 Ask me about Python, AWS, Computer Vision, Spark
+📫 Reach me on LinkedIn
 ---
-
-## Architecture
-
-```
-┌─────────────┐    ┌─────────────┐    ┌──────────────┐
-│  WhatsApp   │───▶│   Twilio    │───▶│     n8n      │
-│  (field)    │    │   webhook   │    │  orchestrator│
-└─────────────┘    └─────────────┘    └──────┬───────┘
-       ▲                                     │
-       │                                     ▼
-       │                            ┌──────────────┐
-       │                            │  Claude API  │
-       │                            │ intent class.│
-       │                            └──────┬───────┘
-       │                                   │
-       │                                   ▼
-       │                            ┌──────────────┐
-       │  confirmation              │   Supabase   │
-       └────────────────────────────│  (Postgres)  │
-                                    └──────┬───────┘
-                                           │ realtime
-                                           ▼
-                                    ┌──────────────┐
-                                    │  Dashboard   │
-                                    │  (Vercel)    │
-                                    └──────────────┘
-```
-
+🛠️ Tech Stack
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
+![Apache Spark](https://img.shields.io/badge/Spark-E25A1C?style=for-the-badge&logo=apachespark&logoColor=white)
+![Databricks](https://img.shields.io/badge/Databricks-FF3621?style=for-the-badge&logo=databricks&logoColor=white)
+![Jupyter](https://img.shields.io/badge/Jupyter-F37626?style=for-the-badge&logo=jupyter&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+![n8n](https://img.shields.io/badge/n8n-EA4B71?style=for-the-badge&logo=n8n&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Azure](https://img.shields.io/badge/Azure-0078D4?style=for-the-badge&logo=microsoft-azure&logoColor=white)
 ---
-
-## Key technical decisions
-
-### Intent classification with Claude instead of keyword matching
-Operators in mining sites communicate informally, mixing technical jargon with colloquial Spanish. The system needs to extract structured data (tonnage, number of trips, equipment IDs, suspension reasons) from free-form text. Claude returns a confidence score; messages below 60% trigger a clarification reply instead of a wrong action.
-
-### Supabase Realtime for the control room dashboard
-The dashboard subscribes to Postgres change events via WebSockets — no polling, no custom backend. When n8n writes a status update, the control room sees it within ~200ms. This is critical for shift supervisors monitoring multiple active operations.
-
-### Confidence gating before destructive actions
-Every classification result passes through a confidence check before any database mutation. Low-confidence messages are bounced back to the operator with structured options (`LISTO / VARIACION / SUSPENDER`) — preventing wrong-state writes when the model is uncertain.
-
-### Idempotent webhook handler
-The webhook returns `200 OK` immediately, then processes asynchronously. Twilio retries on timeout, so the handler tolerates duplicate inbound messages safely.
-
+🚀 Featured Projects
+Project	Description	Stack
+🏥 aws_deployed_system	Medical system for startup deployed on AWS	Python, AWS
+👁️ computer-vision-tracking	Animal movement tracking with YOLO & SAM2 for Queensland Brain Institute	Python, CV
+⚙️ predictive-maintenance-lakehouse	Industrial IoT predictive maintenance pipeline	Jupyter, Spark
+🚦 traffic-analysis-spark-hdfs	Big data traffic analysis pipeline in Sydney	Spark, HDFS
+⛏️ mining_operations_n8n_automation	Automated mining operations dashboard with n8n	HTML, n8n
+🤖 rag_databricks_migration_tool	AI RAG tool to migrate DB objects to Databricks	Python, RAG
 ---
-
-## Stack
-
-| Layer | Technology |
-|---|---|
-| Messaging | Twilio WhatsApp API |
-| Orchestration | n8n (self-hosted) |
-| AI / NLU | Claude (Anthropic API) |
-| Database | Supabase (Postgres + Realtime) |
-| ERP Integration | Mining ERP (REST API) |
-| Frontend | Vanilla JS + Tailwind CDN |
-| Hosting | Vercel |
-
----
-
-## Outcomes handled
-
-| # | Example message from operator | Action chain |
-|---|---|---|
-| **1** | *"Voladura completada zona norte, sin novedad"* | Mark operation complete → update Supabase → log event → confirm via WhatsApp |
-| **2** | *"Transporte listo, 3 viajes extra, 45 toneladas adicionales por desvio en ruta"* | Extract variations → log additional tonnage/trips → mark complete → confirm |
-| **3** | *"Perforacion suspendida, broca rota, necesitamos repuesto"* | Find next available shift → suspend and reschedule → notify control room → confirm new slot |
-
-Plus four error paths: unknown phone number, no active operation for current shift, multiple operations requiring disambiguation, and ambiguous report (low confidence).
-
----
-
-## What's in this repo
-
-- `index.html` — The control room dashboard (single-file SPA, deploys directly to Vercel)
-- `n8n_workflow.json` — The complete n8n workflow (importable)
-- `supabase-schema.sql` — Database schema with sample mining data
-
----
-
-## Live demo
-
-**Dashboard:** [mining-operations-n8n-automation-2d.vercel.app](https://mining-operations-n8n-automation-2d.vercel.app)
-**Try it:** Send a WhatsApp message to `+1 415 523 8886` (Twilio sandbox) — watch the dashboard update in real time.
-
----
-
-## Why this project matters in a portfolio
-
-This isn't a CRUD app. It's a system that integrates four different APIs across messaging, AI, database, and ERP layers, and ships a real-time control room dashboard on top — all glued together with thoughtful error handling and confidence-based safety rails. It demonstrates:
-
-- **API integration depth** across heterogeneous services
-- **LLM productionization** with structured output, confidence gating, and fallbacks
-- **Realtime UI patterns** without standing up a custom backend
-- **Domain-specific NLU** handling informal, multilingual mining jargon
-- **Safety-first design** — audit trail for regulatory compliance, confidence gating before state mutations
-
----
-
-## About
-
-Built and shipped by **Catherine Varas** as consulting work for a mining operations company.
-
-[LinkedIn](https://www.linkedin.com/in/catherine-varas)
-[GitHub](https://github.com/CateHey)
-
-Open to senior backend, full-stack, and AI integration roles.
+<p align="center">
+  <img src="https://komarev.com/ghpvc/?username=CateHey&color=36BCF7&style=flat-square&label=Profile+Views" />
+</p>
